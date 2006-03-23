@@ -1,0 +1,4 @@
+2005-12-14 Andrew De Ponte <cyphactor@socal.rr.com>
+
+    * Created the plugin shell and the base CVS module so that
+    development of the plugin could begin.
