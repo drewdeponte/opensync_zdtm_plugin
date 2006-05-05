@@ -13,7 +13,7 @@ EXTRA_DIST = \
 
 config_DATA = zdtm-sync
 
-opensyncheader_HEADER = zdtm_sync.h
+opensyncheader_HEADER = zdtm_sync.h zdtm_format.h
 
 plugin_LTLIBRARIES = zdtm_sync.la
 
@@ -22,8 +22,8 @@ zdtm_sync_la_LDFLAGS = -avoid-version -export-dynamic -module
 zdtm_sync_la_LIBADD = @PACKAGE_LIBS@ @LIBS@
 
 ## if you plan to install format libraries: ##
-formats_LTLIBRARIES = format.la
+formats_LTLIBRARIES = zdtm.la
 
-format_la_SOURCES = format.c
-format_la_LDFLAGS = -avoid-version -export-dynamic -module
-format_la_LIBADD = @PACKAGE_LIBS@ @LIBS@
+zdtm_la_SOURCES = zdtm_format.c
+zdtm_la_LDFLAGS = -avoid-version -export-dynamic -module
+zdtm_la_LIBADD = @PACKAGE_LIBS@ @LIBS@

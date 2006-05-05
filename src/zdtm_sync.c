@@ -141,7 +141,77 @@ static void zdtm_get_changeinfo(OSyncContext *ctx)
     osync_context_report_success(ctx);
 }
 
-static osync_bool zdtm_commit_change(OSyncContext *ctx, OSyncChange *change)
+static osync_bool zdtm_event_commit_change(OSyncContext *ctx, OSyncChange *change)
+{
+    zdtm_plugin_env *env = (zdtm_plugin_env *)osync_context_get_plugin_data(ctx);
+    
+    /*
+     * Here you have to add, modify or delete a object
+     * 
+     */
+    switch (osync_change_get_changetype(change)) {
+        case CHANGE_DELETED:
+            //Delete the change
+            //Dont forget to answer the call on error
+            break;
+        case CHANGE_ADDED:
+            //Add the change
+            //Dont forget to answer the call on error
+            //If you are using hashtables you have to calculate the hash here:
+            osync_change_set_hash(change, "new hash");
+            break;
+        case CHANGE_MODIFIED:
+            //Modify the change
+            //Dont forget to answer the call on error
+            //If you are using hashtables you have to calculate the new hash here:
+            osync_change_set_hash(change, "new hash");
+            break;
+        default:
+            osync_debug("FILE-SYNC", 0, "Unknown change type");
+    }
+    //Answer the call
+    osync_context_report_success(ctx);
+    //if you use hashtable, update the hash now.
+    osync_hashtable_update_hash(env->hashtable, change);
+    return TRUE;
+}
+
+static osync_bool zdtm_contact_commit_change(OSyncContext *ctx, OSyncChange *change)
+{
+    zdtm_plugin_env *env = (zdtm_plugin_env *)osync_context_get_plugin_data(ctx);
+    
+    /*
+     * Here you have to add, modify or delete a object
+     * 
+     */
+    switch (osync_change_get_changetype(change)) {
+        case CHANGE_DELETED:
+            //Delete the change
+            //Dont forget to answer the call on error
+            break;
+        case CHANGE_ADDED:
+            //Add the change
+            //Dont forget to answer the call on error
+            //If you are using hashtables you have to calculate the hash here:
+            osync_change_set_hash(change, "new hash");
+            break;
+        case CHANGE_MODIFIED:
+            //Modify the change
+            //Dont forget to answer the call on error
+            //If you are using hashtables you have to calculate the new hash here:
+            osync_change_set_hash(change, "new hash");
+            break;
+        default:
+            osync_debug("FILE-SYNC", 0, "Unknown change type");
+    }
+    //Answer the call
+    osync_context_report_success(ctx);
+    //if you use hashtable, update the hash now.
+    osync_hashtable_update_hash(env->hashtable, change);
+    return TRUE;
+}
+
+static osync_bool zdtm_todo_commit_change(OSyncContext *ctx, OSyncChange *change)
 {
     zdtm_plugin_env *env = (zdtm_plugin_env *)osync_context_get_plugin_data(ctx);
     
@@ -225,7 +295,7 @@ void get_info(OSyncEnv *env)
     
     //Tell opensync something about your plugin
     info->name = "zdtm-sync";
-    info->longname = "Zaurus DTM Synchronization";
+    info->longname = "Zaurus DTM Synchronization Plugin";
     info->description = "An OpenSync plugin which provides \
         synchronization with Zaurs Personal Mobal Tools (PMTs) which \
         are using a DTM based ROM (any of the recent Sharp ROMs).";
@@ -249,34 +319,18 @@ void get_info(OSyncEnv *env)
     info->timeouts.connect_timeout = 5;
     //There are more timeouts for the other functions
     
-    //Now you have to tell opensync all the object types that your are accepting.
-    //There can be more than one type you accept (for example: contact, event, note etc)
-    //osync_plugin_accept_objtype(info, "<object type name>");
     osync_plugin_accept_objtype(info, "todo");
     osync_plugin_accept_objtype(info, "contact");
     osync_plugin_accept_objtype(info, "event");
-    //osync_plugin_accept_objtype(info, "note");
     
-    //which format do you accept for this objtype
-    //osync_plugin_accept_objformat(info, "<object type name>", "<format name>", "<name of the required extension if any>");
-    osync_plugin_accept_objformat(info, "todo", "zdtm", NULL);
-    osync_plugin_accept_objformat(info, "contact", "zdtm", NULL);
-    osync_plugin_accept_objformat(info, "event", "zdtm", NULL);
-    //osync_plugin_accept_objformat(info, "note", "zdtm", NULL)
+    osync_plugin_accept_objformat(info, "todo", "zdtm-todo", NULL);
+    osync_plugin_accept_objformat(info, "contact", "zdtm-contact", NULL);
+    osync_plugin_accept_objformat(info, "event", "zdtm-event", NULL);
     
-    //set the commit function for this format. this function will be called for
-    //each object to write once
-    osync_plugin_set_commit_objformat(info, "<object type name>",
-        "<format name>", zdtm_commit_change);
-    osync_plugin_set_commit_objformat(info, "todo", "zdtm",
-        zdtm_commit_change);
-    osync_plugin_set_commit_objformat(info, "contact", "zdtm",
-        zdtm_commit_change);
-    osync_plugin_set_commit_objformat(info, "event", "zdtm",
-        zdtm_commit_change);
-    //osync_plugin_set_commit_objformat(info, "note", "zdtm",
-    //    zdtm_commit_change);
-    //the other possibility is to do a batch commit by setting
-    //osync_plugin_set_batch_commit_objformat(info, "<object type name>", "<format name>", batch_commit);
-    //this function will be called exactly once with all objects to write gathered in an array
+    osync_plugin_set_commit_objformat(info, "todo", "zdtm-todo",
+        zdtm_todo_commit_change);
+    osync_plugin_set_commit_objformat(info, "contact", "zdtm-contact",
+        zdtm_contact_commit_change);
+    osync_plugin_set_commit_objformat(info, "event", "zdtm-event",
+        zdtm_event_commit_change);
 }
